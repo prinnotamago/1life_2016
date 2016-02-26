@@ -21,6 +21,8 @@ public class PondWater : MonoBehaviour {
 
     void Move()
     {
+        Vector3 a = (_TargetWaterPos - transform.position);
+        if (a.magnitude == 0) { return; }
         transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(_TargetWaterPos - transform.position), 0.07f);
         GetComponent<Rigidbody>().velocity = new Vector3(transform.forward.x, transform.forward.y, 0.0f) * 1.1f;
         //transform.position += new Vector3(transform.forward.x, transform.forward.y, 0.0f) * 0.05f;

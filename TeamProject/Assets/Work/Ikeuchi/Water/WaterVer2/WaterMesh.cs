@@ -34,14 +34,21 @@ public class WaterMesh : MonoBehaviour
 
         GetComponent<MeshFilter>().sharedMesh = _mesh;
         GetComponent<MeshFilter>().sharedMesh.name = "myMesh";
+
+        if (_playerObj == null)
+        {
+            _playerObj = GameObject.Find("Player");
+        }
+        if(_watersObjManager == null)
+        {
+            _watersObjManager = GameObject.Find("PlayerWaters");
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        GameObject player = GameObject.Find("Player");
-        if (player == null) { return; }
-        var playerMode = player.GetComponent<Player>();
+        var playerMode = _playerObj.GetComponent<Player>();
         if (playerMode._playerMode != playerMode._PLAYER_MODE_ICE)
         {
             Is2DRenderMeshUpdate();
@@ -52,7 +59,7 @@ public class WaterMesh : MonoBehaviour
     void Is2DRenderMeshUpdate()
     {
         // プレイヤーの水を配列で確保
-        var waters = GameObject.Find(_watersObjManager.name).GetComponentsInChildren<PlayerWaterMover>();
+        var waters = _watersObjManager.GetComponentsInChildren<PlayerWaterMover>();
 
         // 配列数が２以下だと△ポリゴンが作れないので抜ける(３つ頂点が必要)
         int triangleNum = (waters.Length - 2) * 3;
@@ -82,8 +89,6 @@ public class WaterMesh : MonoBehaviour
 
         // 頂点座標指定
         // - 1 は要素数外にでないように
-        if (_playerObj == null) { _playerObj = GameObject.Find("Player"); }
-        if (_playerObj == null) { return; }
         for (int i = 0; i < waters.Length; ++i)
         {
             var vertex = waters[i].transform.position - _playerObj.transform.position;
@@ -115,15 +120,15 @@ public class WaterMesh : MonoBehaviour
 
         // 三角形の頂点インデックスの指定
         // count は 0,1,2 → 0,2,3 → 0,3,4　とつなげるためのカウント
-        int count = 1;
+        int index_count = 1;
         for (int i = 0; i < triangles.Length - 3; i += 3)
         {
             triangles[i] = 0;
-            triangles[i + 1] = count;
-            triangles[i + 2] = ++count;
+            triangles[i + 1] = index_count;
+            triangles[i + 2] = ++index_count;
         }
         triangles[triangles.Length - 3] = 0;
-        triangles[triangles.Length - 2] = count;
+        triangles[triangles.Length - 2] = index_count;
         triangles[triangles.Length - 1] = 1;
 
         //Debug.Log(count);

@@ -1,0 +1,4 @@
+sceneSetups:
+- path: Assets/Work/Sugiyama/Stage3/StageTest.unity
+  isLoaded: 1
+  isActive: 1

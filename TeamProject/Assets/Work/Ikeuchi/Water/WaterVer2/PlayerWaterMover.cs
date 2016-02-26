@@ -18,9 +18,9 @@ public class PlayerWaterMover : MonoBehaviour {
     {
         if(_PLAYER_OBJ == null) { return; }
         Vector3 length = transform.position - _PLAYER_OBJ.transform.position;
-        if (length.sqrMagnitude > 1.0f)
+        if (length.sqrMagnitude > 2.0f)
         {
-            transform.position = _PLAYER_OBJ.transform.position; ;
+            transform.position = _PLAYER_OBJ.transform.position;
         }
         else
         {

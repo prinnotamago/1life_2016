@@ -1,5 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
+using UnityEngine;
 
 public class Player : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class Player : MonoBehaviour
     public PlayerMode _PLAYER_MODE_WATER { get { return PlayerMode.WATER; } }
     public PlayerMode _PLAYER_MODE_ICE { get { return PlayerMode.ICE; } }
     public PlayerMode _PLAYER_MODE_AIR { get { return PlayerMode.AIR; } }
+    public PlayerMode _PLAYER_MODE_CHANGE { get { return PlayerMode.CHANGE; } }
 
     //状態変化前の変数を格納する変数
     private PlayerMode _changeOldStay = 0;
@@ -45,9 +47,8 @@ public class Player : MonoBehaviour
 
     //状態変化時に使う変数
     [SerializeField]
-    private int _changeTime = 10;
-
-    private int _changeCount = 0;
+    private float _changeTime = 10;
+    private float _changeCount = 0;
 
     //強制的に水蒸気状態から水に戻す
     [SerializeField]
@@ -55,7 +56,11 @@ public class Player : MonoBehaviour
     private float _changeWaterCount = 0;
     public float ChangeWaterCount { get { return _changeWaterCount; } }
     private bool _changeAir = false;
+
     public bool ChangeAir { get { return _changeAir; } }
+
+    [SerializeField]
+    private bool _debug;
 
     //ジャンプ
     private void JumpSystem(ref bool _jump)
@@ -81,7 +86,7 @@ public class Player : MonoBehaviour
     }
 
     //重力
-    private void GravitySystem(ref bool _gravityMode)
+    private void GravitySystem()
     {
         if (_gravityMode)
         {
@@ -92,20 +97,7 @@ public class Player : MonoBehaviour
             _rigidbody.AddForce(-1 * Down_Gravity, ForceMode.Acceleration);
         }
 
-        switch (_playerMode)
-        {
-            case PlayerMode.WATER:
-                _gravityMode = false;
-                break;
-
-            case PlayerMode.AIR:
-                _gravityMode = true;
-                break;
-
-            case PlayerMode.ICE:
-                _gravityMode = false;
-                break;
-        }
+        _gravityMode = (_playerMode == PlayerMode.AIR) ? true : false;
     }
 
     //状態変化
@@ -114,118 +106,22 @@ public class Player : MonoBehaviour
         //オブジェクトの判別はtagで行っているので、tag追加お願いします
         //
         //プレイヤーが火に触れた時の処理
-        if (collision.gameObject.tag == "Fire")
+        if (collision.gameObject.tag == "Fire" && _changeCount == 0)
         {
-            if (_playerMode == PlayerMode.WATER)
-            {
-                SoundManager._instance.SePlay(9);
-                _changeOldStay = _playerMode;
-                _playerMode = PlayerMode.CHANGE;
-                _changeNewStay = PlayerMode.AIR;
+            var changeStateF = (_playerMode == PlayerMode.WATER) ? PlayerMode.AIR
+                : PlayerMode.WATER;
 
-                _playerFreezePos = gameObject.transform.position;
-            }
-            else if (_playerMode == PlayerMode.ICE)
-            {
-                SoundManager._instance.SePlay(9);
-                _changeOldStay = _playerMode;
-                _playerMode = PlayerMode.CHANGE;
-                _changeNewStay = PlayerMode.WATER;
-
-                _playerFreezePos = gameObject.transform.position;
-            }
+            ChangePlayerState(_playerMode, changeStateF);
         }
 
         //プレイヤーが氷に触れた時の処理
-        if (collision.gameObject.tag == "Ice")
+        if (collision.gameObject.tag == "Ice" && _changeCount == 0)
         {
-            if (_gravityMode)
-            {
-                if (_playerMode == PlayerMode.AIR)
-                {
-                    SoundManager._instance.SePlay(8);
-                    _changeOldStay = _playerMode;
-                    _playerMode = PlayerMode.CHANGE;
-                    _changeNewStay = PlayerMode.WATER;
+            var changeStateI = (_gravityMode) ? PlayerMode.WATER
+                : PlayerMode.ICE;
 
-                    _playerFreezePos = gameObject.transform.position;
-                }
-            }
-            else
-            {
-                if (_playerMode == PlayerMode.WATER)
-                {
-                    SoundManager._instance.SePlay(8);
-                    _changeOldStay = _playerMode;
-                    _playerMode = PlayerMode.CHANGE;
-                    _changeNewStay = PlayerMode.ICE;
-
-                    _playerFreezePos = gameObject.transform.position;
-                }
-            }
+            ChangePlayerState(_playerMode, changeStateI);
         }
-    }
-
-
-    private void Start()
-    {
-        _rigidbody = GetComponent<Rigidbody>();
-        _fire = FindObjectOfType<Fire>();
-        _snowEffect = FindObjectOfType<ParticleSystem>();
-    }
-
-
-    private void Update()
-    {
-        ////デバック用のキー操作
-        //if (!((_playerMode == PlayerMode.ICE) && _jump))
-        //{
-        //    var r = Input.GetAxis("Horizontal");
-        //    transform.Translate(r / 5, 0, 0);
-        //}
-        
-        //各状態の重力処理
-        GravitySystem(ref _gravityMode);
-
-        //一定時間たつとプレイヤーの状態が変化する処理
-        if (_playerMode == PlayerMode.CHANGE)
-        {
-            _changeCount++;
-            gameObject.transform.position = _playerFreezePos;
-
-            if (_changeCount > _changeTime * 60)
-            {
-                if (_changeOldStay == PlayerMode.ICE && _changeNewStay == PlayerMode.WATER)
-                {
-                    _fire.Destroy();
-                }
-
-                _playerMode = _changeNewStay;
-                _changeCount = 0;
-            }
-        }
-
-        //一定時間で水蒸気から水にする処理
-        if (_playerMode == PlayerMode.AIR)
-        {
-            _changeWaterCount+=Time.deltaTime;
-
-            if (_changeWaterCount > (_autoChangeWater - 3))
-            {
-                _changeAir = true;
-            }
-            if (_changeWaterCount > _autoChangeWater)
-            {
-                _changeAir = false;
-                _playerMode = PlayerMode.WATER;
-            }
-        }
-        else _changeWaterCount = 0;
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        ChangeState(collision, ref _changeOldStay);
 
         //プレイヤーが着地している時
         if (collision.gameObject.tag == "Floor")
@@ -240,10 +136,90 @@ public class Player : MonoBehaviour
         //プレイヤーが壊せる壁に触れた時の処理
         if (collision.gameObject.tag == "BreakWall")
         {
-            if (_playerMode == PlayerMode.ICE)
-            {
-                _playerMode = PlayerMode.WATER;
-            }
+            if (_playerMode == PlayerMode.ICE) { _playerMode = PlayerMode.WATER; }
         }
+    }
+
+    private void ChangePlayerState(PlayerMode playerMode, PlayerMode changeState)
+    {
+        _changeOldStay = playerMode;
+        _playerMode = PlayerMode.CHANGE;
+        _changeNewStay = changeState;
+
+        _playerFreezePos = gameObject.transform.position;
+    }
+
+    private void Start()
+    {
+        _rigidbody = GetComponent<Rigidbody>();
+        _fire = FindObjectOfType<Fire>();
+        _snowEffect = FindObjectOfType<ParticleSystem>();
+    }
+
+    private void Update()
+    {
+        DebugKey(_debug);
+
+        //一定時間たつとプレイヤーの状態が変化する処理
+        if (_playerMode == PlayerMode.CHANGE)
+        {
+            TimeChangePlayerState(_changeNewStay);
+        }
+        else
+        {
+            //各状態の重力処理
+            GravitySystem();
+        }
+
+        //一定時間で水蒸気から水にする処理
+        if (_playerMode == PlayerMode.AIR)
+        {
+            AutoChangeWater();
+        }
+    }
+
+    private void DebugKey(bool _debug)
+    {
+        if (_debug)
+        {
+            //デバック用のキー操作
+            if (!((_playerMode == PlayerMode.ICE) && _jump))
+            {
+                var r = Input.GetAxis("Horizontal");
+                transform.Translate(r / 5, 0, 0);
+            }
+            Jump();
+        }
+    }
+
+    private void TimeChangePlayerState(PlayerMode _changeNewStay)
+    {
+        _changeCount += Time.deltaTime;
+        gameObject.transform.position = _playerFreezePos;
+        if (_changeCount > _changeTime)
+        {
+            _playerMode = _changeNewStay;
+            if (!(_changeOldStay == PlayerMode.AIR))
+            {
+                _fire.Destroy();
+            }
+            _changeCount = 0;
+        }
+    }
+
+    private void AutoChangeWater()
+    {
+        _changeWaterCount++;
+
+        if (_changeWaterCount > _autoChangeWater * 60)
+        {
+            _playerMode = PlayerMode.WATER;
+            _changeWaterCount = 0;
+        }
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        ChangeState(collision, ref _changeOldStay);
     }
 }

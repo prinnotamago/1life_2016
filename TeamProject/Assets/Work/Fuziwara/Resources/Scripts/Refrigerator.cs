@@ -80,21 +80,32 @@ public class Refrigerator : MonoBehaviour
         }
         if (_openCover)
         {
-            _refrigeratorCover.transform.Rotate(new Vector3(0, -1 * _openAngle, 0));
-
-            if (_refrigeratorCover.transform.localRotation.y <= -1 * _openAngleLimit)
-            {
-                _snowEffect = Spon_SnowEffect();
-                if (_snowEffect.isStopped)
-                {
-                    _snowEffect.Play();
-                }
-                _changeAria = Spone_ChangeAria();
-                _openCover = false;
-            }
+            CoverAction();
         }
 
         //蓋が開いたあとに状態変化のボックスを作る
+        CreateStateBox();
+
+    }
+
+    private void CoverAction()
+    {
+        _refrigeratorCover.transform.Rotate(new Vector3(0, -1 * _openAngle, 0));
+
+        if (_refrigeratorCover.transform.localRotation.y <= -1 * _openAngleLimit)
+        {
+            _snowEffect = Spon_SnowEffect();
+            if (_snowEffect.isStopped)
+            {
+                _snowEffect.Play();
+            }
+            _changeAria = Spone_ChangeAria();
+            _openCover = false;
+        }
+    }
+
+    private void CreateStateBox()
+    {
         _snowCount += (_snowEffect.isPlaying) ? 1 : 0;
         if (_snowCount > _snowLimitCount * 60)
         {
@@ -107,7 +118,6 @@ public class Refrigerator : MonoBehaviour
             }
         }
     }
-
 
     void Start()
     {

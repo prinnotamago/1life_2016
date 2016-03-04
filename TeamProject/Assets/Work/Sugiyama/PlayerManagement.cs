@@ -31,12 +31,19 @@ public class PlayerManagement : MonoBehaviour
 
     private Rigidbody _rigidBody;
 
-    //ゲームオーバーか否か
-    private bool movingPlayer = true; 
-    public void EndGame()
+    //プレイヤーを操作可能かどうか
+    private bool _movingPlayer = true; 
+    public void StopPlayer()
     {
-        movingPlayer = false;
+        _movingPlayer = false;
     }
+
+    public void MovingPlayer()
+    {
+        _movingPlayer = true;
+    }
+
+
 
     private void Awake()
     {
@@ -65,11 +72,14 @@ public class PlayerManagement : MonoBehaviour
     private void Update()
     {
         //プレイヤーを動かせる状態の時
-        if(movingPlayer)_PlayerUpdate();
+        if(_movingPlayer)_PlayerUpdate();
     }
 
     private void _PlayerUpdate()
     {
+        //フレームレートの取得
+        float fps = Time.deltaTime / (1f / 60f);
+
         _fujiwaraPlayer.Jump();
 
         //スマホの角度
@@ -92,7 +102,7 @@ public class PlayerManagement : MonoBehaviour
         //プレイヤーの移動
         float AddVectorX = (-_rigidBody.velocity.x);
         _rigidBody.AddForce(new Vector3(AddVectorX, 0, 0));
-        if (angle >= _MIN_ANGLE || angle <= -1 * _MIN_ANGLE) _rigidBody.velocity = new Vector3(speed, _rigidBody.velocity.y, _rigidBody.velocity.z);
+        if (angle >= _MIN_ANGLE || angle <= -1 * _MIN_ANGLE) _rigidBody.velocity = new Vector3(speed * fps, _rigidBody.velocity.y, _rigidBody.velocity.z);
 
         //Debug.Log(_rigidBody.velocity);
 
@@ -123,7 +133,27 @@ public class PlayerManagement : MonoBehaviour
                 _rigidBody.velocity = new Vector3(_SKY_SPEED, _rigidBody.velocity.y, _rigidBody.velocity.z);
             }
         }
+
+        //地面との当たり判定
+        //_jump = jumpDecision();
+
     }
+
+    //public bool jumpDecision()
+    //{
+    //    Vector3 rayForward = new Vector3(0, -1, 0);
+    //    Ray ray = new Ray(transform.position, rayForward,);
+    //    RaycastHit hit;
+    //    Debug.DrawRay(ray.origin, ray.direction, Color.red, 3.0f);
+    //    if (Physics.Raycast(ray,out hit))
+    //    {
+    //        float dis = hit.distance;
+    //        Debug.Log(dis);
+    //        if (dis <= 0.06f) return false;
+    //        else return true;
+    //    }
+    //    return true;
+    //}
 
     private void OnCollisionStay(Collision collision)
     {

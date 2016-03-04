@@ -17,8 +17,9 @@ public class EmptyCan : MonoBehaviour {
     {
         if(collision.gameObject.tag == "Player")
         {
-            _player.transform.parent = this.transform;
+            //_player.transform.parent = this.transform;
             _player.transform.localEulerAngles += new Vector3(0, 1, 0);
+            _player.transform.position += new Vector3(0, 0, -0.01f);
         }
     }
 

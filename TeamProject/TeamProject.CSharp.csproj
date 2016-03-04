@@ -125,15 +125,17 @@
     <Compile Include="Assets\Work\Sugiyama\Stage3\Sponge\Sponge.cs" />
     <Compile Include="Assets\Work\Sugiyama\TeamProject\DebugLogRotate.cs" />
     <Compile Include="Assets\Work\Sugiyama\TeamProject\GyroDebugLog.cs" />
-    <Compile Include="Assets\Work\Ueno\Beta\ElectricWire.cs" />
-    <Compile Include="Assets\Work\Ueno\Beta\OreruEda.cs" />
-    <Compile Include="Assets\Work\Ueno\Scripts\FPS.cs" />
-    <Compile Include="Assets\Work\Ueno\Scripts\Lighter.cs" />
-    <Compile Include="Assets\Work\Ueno\Scripts\Lighter2.cs" />
-    <Compile Include="Assets\Work\Ueno\Scripts\Option_Button.cs" />
-    <Compile Include="Assets\Work\Ueno\Scripts\Wall_1.cs" />
-    <Compile Include="Assets\Work\Ueno\Scripts\Wall_parts.cs" />
-    <Compile Include="Assets\Work\Ueno\Scripts\Wall_pieces.cs" />
+    <Compile Include="Assets\Work\Ueno\01\Beta\ElectricWire.cs" />
+    <Compile Include="Assets\Work\Ueno\01\Beta\OreruEda.cs" />
+    <Compile Include="Assets\Work\Ueno\01\Scripts\FPS.cs" />
+    <Compile Include="Assets\Work\Ueno\01\Scripts\Lighter.cs" />
+    <Compile Include="Assets\Work\Ueno\01\Scripts\Lighter2.cs" />
+    <Compile Include="Assets\Work\Ueno\01\Scripts\Option_Button.cs" />
+    <Compile Include="Assets\Work\Ueno\01\Scripts\Wall_1.cs" />
+    <Compile Include="Assets\Work\Ueno\01\Scripts\Wall_parts.cs" />
+    <Compile Include="Assets\Work\Ueno\01\Scripts\Wall_pieces.cs" />
+    <Compile Include="Assets\Work\Ueno\Kan_Ue.cs" />
+    <Compile Include="Assets\Work\Ueno\Switch.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\ProgramaReadme.txt" />
@@ -143,7 +145,7 @@
     <None Include="Assets\Work\Ikeuchi\Test\test.txt" />
     <None Include="Assets\Work\Ikeuchi\Water\WaterVer1\CullingOff.shader" />
     <None Include="Assets\Work\Sugiyama\test.txt" />
-    <None Include="Assets\Work\Ueno\Materials\test.txt" />
+    <None Include="Assets\Work\Ueno\01\Materials\test.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
